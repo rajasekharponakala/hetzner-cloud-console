@@ -34,6 +34,7 @@
 ### Task 1: Scaffold project
 
 **Files:**
+
 - Create: `package.json`, `app.json`, `tsconfig.json`, `.nvmrc`, `.gitignore`, `.prettierrc`, `eslint.config.js`, `README.md`, `jest.config.js`
 
 - [ ] **Step 1: Create package.json**
@@ -120,6 +121,7 @@
 - [ ] **Step 3: Create tsconfig.json, .nvmrc, .gitignore, .prettierrc, eslint.config.js**
 
 tsconfig.json:
+
 ```json
 {
   "extends": "expo/tsconfig.base",
@@ -135,6 +137,7 @@ tsconfig.json:
 .nvmrc: `20`
 
 .gitignore:
+
 ```
 node_modules/
 .expo/
@@ -145,11 +148,13 @@ ios/
 ```
 
 .prettierrc:
+
 ```json
 { "singleQuote": true, "trailingComma": "all", "printWidth": 100 }
 ```
 
 eslint.config.js:
+
 ```js
 const { defineConfig } = require('eslint-define-config');
 module.exports = defineConfig([{ extends: ['expo'] }]);
@@ -172,6 +177,7 @@ git add -A && git commit -m "chore: scaffold expo project"
 ### Task 2: Hetzner types + client
 
 **Files:**
+
 - Create: `src/types/hetzner.ts`, `src/api/client.ts`, `src/api/__tests__/client.test.ts`
 
 - [ ] **Step 1: Write failing client test**
@@ -190,7 +196,9 @@ describe('hcloud client', () => {
     const res = await client.get('/servers');
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.hetzner.cloud/v1/servers',
-      expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer tok' }) }),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer tok' }),
+      }),
     );
     expect(res).toEqual({ servers: [] });
   });
@@ -202,7 +210,10 @@ describe('hcloud client', () => {
       json: async () => ({ error: { code: 'unauthorized', message: 'bad token' } }),
     });
     const client = createClient('tok', fetchMock as any);
-    await expect(client.get('/servers')).rejects.toMatchObject({ status: 401, code: 'unauthorized' });
+    await expect(client.get('/servers')).rejects.toMatchObject({
+      status: 401,
+      code: 'unauthorized',
+    });
   });
 });
 ```
@@ -216,8 +227,13 @@ Run: `npx jest src/api/__tests__/client.test.ts` → FAIL (module not found).
 `src/types/hetzner.ts` — define Server, Volume, Network, Firewall, LoadBalancer, FloatingIp, PrimaryIp, SshKey, Image, Location, ServerType, PlacementGroup, Pricing, Action, HetznerError, Pagination types. (Full interfaces from OpenAPI subset used.)
 
 `src/api/client.ts`:
+
 ```ts
-export interface HetznerError extends Error { status: number; code: string; details?: unknown; }
+export interface HetznerError extends Error {
+  status: number;
+  code: string;
+  details?: unknown;
+}
 export function createClient(token: string, fetchImpl: typeof fetch = fetch) {
   async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
     const res = await fetchImpl(`https://api.hetzner.cloud/v1${path}`, {
@@ -226,10 +242,14 @@ export function createClient(token: string, fetchImpl: typeof fetch = fetch) {
       body: body ? JSON.stringify(body) : undefined,
     });
     let data: any = null;
-    try { data = await res.json(); } catch {}
+    try {
+      data = await res.json();
+    } catch {}
     if (!res.ok) {
       const e: HetznerError = Object.assign(new Error(data?.error?.message ?? res.statusText), {
-        status: res.status, code: data?.error?.code ?? 'unknown', details: data?.error?.details,
+        status: res.status,
+        code: data?.error?.code ?? 'unknown',
+        details: data?.error?.details,
       });
       throw e;
     }
@@ -253,21 +273,27 @@ export function createClient(token: string, fetchImpl: typeof fetch = fetch) {
 ### Task 3: Auth accounts storage
 
 **Files:**
+
 - Create: `src/auth/accounts.ts`, `src/auth/__tests__/accounts.test.ts`
 
 Implement:
+
 ```ts
-export interface Account { id: string; label: string; token: string; }
+export interface Account {
+  id: string;
+  label: string;
+  token: string;
+}
 const KEY = 'hcc_accounts';
 const ACTIVE = 'hcc_active';
 // use SecureStore with try/catch fallback to AsyncStorage? Keep SecureStore primary.
-export async function loadAccounts(): Promise<Account[]>
-export async function saveAccounts(accounts: Account[]): Promise<void>
-export async function addAccount(label: string, token: string): Promise<Account>
-export async function removeAccount(id: string): Promise<void>
-export async function getActiveId(): Promise<string | null>
-export async function setActiveId(id: string | null): Promise<void>
-export async function getActiveAccount(): Promise<Account | null>
+export async function loadAccounts(): Promise<Account[]>;
+export async function saveAccounts(accounts: Account[]): Promise<void>;
+export async function addAccount(label: string, token: string): Promise<Account>;
+export async function removeAccount(id: string): Promise<void>;
+export async function getActiveId(): Promise<string | null>;
+export async function setActiveId(id: string | null): Promise<void>;
+export async function getActiveAccount(): Promise<Account | null>;
 ```
 
 Use `expo-secure-store`. Fallback: if SecureStore unavailable, use AsyncStorage. Implement try/catch.
@@ -281,6 +307,7 @@ Tests: mock SecureStore; add/remove/switch; active retrieval; fallback on throw.
 ### Task 4: Root layout + auth gate + token entry
 
 **Files:**
+
 - Create: `app/_layout.tsx`, `app/(auth)/_layout.tsx`, `app/(auth)/token.tsx`, `app/(tabs)/_layout.tsx`
 
 Root layout reads active account; if none → redirect to `/token`. Use `useSegments` + `router.replace`.
@@ -296,6 +323,7 @@ Tabs layout: 6 tabs — Servers, Volumes, Networks, Firewalls, Load Balancers, M
 ### Task 5: Shared UI components
 
 **Files:**
+
 - Create: `src/components/Button.tsx`, `Card.tsx`, `Badge.tsx`, `Loading.tsx`, `ErrorView.tsx`, `ConfirmDialog.tsx`
 
 Simple styled components.
@@ -305,6 +333,7 @@ Simple styled components.
 ### Task 6: Resource modules + hooks
 
 **Files:**
+
 - Create: `src/api/servers.ts`, `volumes.ts`, `networks.ts`, `firewalls.ts`, `loadbalancers.ts`, `floatingIps.ts`, `primaryIps.ts`, `sshKeys.ts`, `images.ts`, `locations.ts`, `serverTypes.ts`, `placementGroups.ts`, `pricing.ts`
 - Create: `src/hooks/useResource.ts`, `useServers.ts`, etc.
 
@@ -317,6 +346,7 @@ Each module: list/get/create/update/delete + actions. Hooks wrap with loading/er
 ### Task 7: Servers screens
 
 **Files:**
+
 - Create: `app/(tabs)/servers/index.tsx`, `[id].tsx`, `create.tsx`
 
 List with FlatList, pull-to-refresh, status badge. Detail with metrics + action buttons (power on/off, reboot, reset, shutdown, delete) with confirm. Create modal.
@@ -326,6 +356,7 @@ List with FlatList, pull-to-refresh, status badge. Detail with metrics + action 
 ### Task 8: Volumes, Networks, Firewalls, Load Balancers screens
 
 **Files:**
+
 - Create directories + index/detail/create for each.
 
 Simpler versions: list + detail + delete + create (basic fields).
@@ -335,6 +366,7 @@ Simpler versions: list + detail + delete + create (basic fields).
 ### Task 9: More tab screens
 
 **Files:**
+
 - Create: `app/(tabs)/more/index.tsx` (menu), `accounts.tsx`, `floating-ips.tsx`, `primary-ips.tsx`, `ssh-keys.tsx`, `images.tsx`, `locations.tsx`, `server-types.tsx`, `placement-groups.tsx`, `pricing.tsx`
 
 ---
@@ -342,6 +374,7 @@ Simpler versions: list + detail + delete + create (basic fields).
 ### Task 10: Tests
 
 **Files:**
+
 - Create: `src/auth/__tests__/accounts.test.ts` (already Task3), `src/hooks/__tests__/useServers.test.ts`, `app` smoke via bundle.
 
 Add hook tests.
@@ -351,11 +384,13 @@ Add hook tests.
 ### Task 11: GitHub workflows + dependabot
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`, `codeql.yml`, `release-apk.yml`, `.github/dependabot.yml`
 
 Copy OmniClick versions, adjust paths (root, not apps/mobile). prebuild path `android`. artifact paths `android/app/build/outputs/...`.
 
 dependabot:
+
 ```yaml
 version: 2
 updates:

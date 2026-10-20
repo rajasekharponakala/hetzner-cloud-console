@@ -10,6 +10,7 @@
 A mobile (Android-first) client for the Hetzner Cloud API (`https://api.hetzner.cloud/v1`). Users paste a project API token once; the app stores it in `expo-secure-store` and lets them browse and manage cloud resources: Servers, Volumes, Networks, Firewalls, Load Balancers, Floating IPs, Primary IPs, SSH Keys, Images, Locations, Server Types, Placement Groups, Pricing.
 
 Success criteria:
+
 - App builds a debug APK in CI and a release APK on tag.
 - All API calls go through one typed client with Bearer auth and error normalization.
 - Token persists across launches; invalid token → re-prompt.

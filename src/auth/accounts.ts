@@ -51,7 +51,11 @@ export async function saveAccounts(accounts: Account[]): Promise<void> {
 
 export async function addAccount(label: string, token: string): Promise<Account> {
   const accounts = await loadAccounts();
-  const acc: Account = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, label, token };
+  const acc: Account = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    label,
+    token,
+  };
   accounts.push(acc);
   await saveAccounts(accounts);
   await setActiveId(acc.id);
@@ -83,7 +87,10 @@ export async function getActiveAccount(): Promise<Account | null> {
   return accounts.find((a) => a.id === id) ?? null;
 }
 
-export async function updateAccount(id: string, patch: Partial<Pick<Account, 'label' | 'token'>>): Promise<void> {
+export async function updateAccount(
+  id: string,
+  patch: Partial<Pick<Account, 'label' | 'token'>>,
+): Promise<void> {
   const accounts = await loadAccounts();
   const idx = accounts.findIndex((a) => a.id === id);
   if (idx === -1) return;

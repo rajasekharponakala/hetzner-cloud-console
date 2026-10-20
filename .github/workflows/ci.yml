@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, typecheck, test, bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - name: Bundle the Android app with Metro
+        run: npm run bundle:android
+
+  native:
+    name: Build a real Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - name: Generate the native Android project
+        run: npm run prebuild:android
+      - name: Assemble a debug APK
+        run: npm run gradlew -- assembleDebug --no-daemon -PreactNativeArchitectures=arm64-v8a,x86_64
+      - name: Upload the APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: hetzner-cloud-console-apk-ci
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+  prebuild-clean:
+    name: Prebuild leaves no diff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run prebuild:android
+      - name: No tracked file may change
+        run: |
+          if ! git diff --quiet -- . ':!.superpowers'; then
+            echo "::error::expo prebuild modified tracked files."
+            git diff -- .
+            exit 1
+          fi

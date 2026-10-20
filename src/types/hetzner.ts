@@ -131,7 +131,13 @@ export interface Network {
 export interface Firewall {
   id: number;
   name: string;
-  rules: { direction: string; protocol: string; port: string | null; source_ips: string[]; destination_ips: string[] }[];
+  rules: {
+    direction: string;
+    protocol: string;
+    port: string | null;
+    source_ips: string[];
+    destination_ips: string[];
+  }[];
   applied_to: { type: string; server?: { id: number }; label_selector?: { selector: string } }[];
   protection: { delete: boolean };
   labels: Record<string, string>;
@@ -218,7 +224,6 @@ export interface Action {
 }
 
 // List response wrappers
-export interface ListResponse<T> { [key: string]: T[] | Meta; meta?: Meta; }
 export type ServersResponse = { servers: Server[]; meta: Meta };
 export type VolumesResponse = { volumes: Volume[]; meta: Meta };
 export type NetworksResponse = { networks: Network[]; meta: Meta };

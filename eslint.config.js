@@ -1,1 +1,2 @@
-module.exports = [{ extends: ['expo'] }];
+const expoFlat = require('eslint-config-expo/flat');
+module.exports = expoFlat;
