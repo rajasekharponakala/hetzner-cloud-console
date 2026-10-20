@@ -52,7 +52,7 @@ jobs:
       - name: Assemble a debug APK
         run: npm run gradlew -- assembleDebug --no-daemon -PreactNativeArchitectures=arm64-v8a,x86_64
       - name: Upload the APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: hetzner-cloud-console-apk-ci
           path: android/app/build/outputs/apk/debug/app-debug.apk
