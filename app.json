@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Hetzner Cloud Console",
+    "slug": "hetzner-cloud-console",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "scheme": "hetzner-cloud-console",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rajasekharponakala.hetznercloudconsole"
+    },
+    "android": {
+      "adaptiveIcon": { "backgroundColor": "#D50C2D" },
+      "package": "com.rajasekharponakala.hetznercloudconsole"
+    },
+    "web": { "output": "static" },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": { "typedRoutes": true }
+  }
+}
